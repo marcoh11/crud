@@ -1,0 +1,7 @@
+
+{"/mantenimiento/*":{
+    "target":"http://localhost:1816",
+    "secure":false,
+    "logLevel":"debug"
+}
+}
