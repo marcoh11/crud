@@ -1,0 +1,170 @@
+--------------------------------------------------------
+-- Archivo creado  - miércoles-febrero-16-2022   
+--------------------------------------------------------
+--------------------------------------------------------
+--  DDL for Sequence SEQ_ID_CLIENTE
+--------------------------------------------------------
+
+   CREATE SEQUENCE  "U1"."SEQ_ID_CLIENTE"  MINVALUE 0 MAXVALUE 99999999999 INCREMENT BY 1 START WITH 22 CACHE 20 NOORDER  NOCYCLE ;
+--------------------------------------------------------
+--  DDL for Table REPORTE
+--------------------------------------------------------
+
+  CREATE TABLE "U1"."REPORTE" 
+   (	"ID_REGISTRO" NUMBER, 
+	"S_NOMBRE" VARCHAR2(30 BYTE), 
+	"S_APELLIDO_P" VARCHAR2(30 BYTE), 
+	"S_APELLIDO_M" VARCHAR2(30 BYTE), 
+	"D_FECHA_N" DATE, 
+	"S_SEXO" VARCHAR2(1 BYTE), 
+	"S_DIRECCION" VARCHAR2(30 BYTE), 
+	"S_CORREO" VARCHAR2(60 BYTE)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "SYSTEM" ;
+REM INSERTING into U1.REPORTE
+SET DEFINE OFF;
+Insert into U1.REPORTE (ID_REGISTRO,S_NOMBRE,S_APELLIDO_P,S_APELLIDO_M,D_FECHA_N,S_SEXO,S_DIRECCION,S_CORREO) values ('2','Rosa','Ramirez','Julca',to_date('12/10/98','DD/MM/RR'),'F','Av Los alamos','rosa@gmail.com');
+Insert into U1.REPORTE (ID_REGISTRO,S_NOMBRE,S_APELLIDO_P,S_APELLIDO_M,D_FECHA_N,S_SEXO,S_DIRECCION,S_CORREO) values ('7','Quico','Perez','Vizcarra',to_date('11/12/97','DD/MM/RR'),'M','Av. Los embarques','quico@gmail.com');
+Insert into U1.REPORTE (ID_REGISTRO,S_NOMBRE,S_APELLIDO_P,S_APELLIDO_M,D_FECHA_N,S_SEXO,S_DIRECCION,S_CORREO) values ('4','Quico','Perez','Vizcarra',to_date('11/12/97','DD/MM/RR'),'M','Av. Los embarques','quico@gmail.com');
+Insert into U1.REPORTE (ID_REGISTRO,S_NOMBRE,S_APELLIDO_P,S_APELLIDO_M,D_FECHA_N,S_SEXO,S_DIRECCION,S_CORREO) values ('6','Roxxana','Quispe','Julca',to_date('12/10/98','DD/MM/RR'),'F','Av Tomas','roxxana@gmail.com');
+Insert into U1.REPORTE (ID_REGISTRO,S_NOMBRE,S_APELLIDO_P,S_APELLIDO_M,D_FECHA_N,S_SEXO,S_DIRECCION,S_CORREO) values ('16','asd','asdas','asdas',to_date('13/03/97','DD/MM/RR'),'F','asdasd','asd');
+--------------------------------------------------------
+--  DDL for Trigger TRG_CLIENTE
+--------------------------------------------------------
+
+  CREATE OR REPLACE TRIGGER "U1"."TRG_CLIENTE" 
+BEFORE INSERT ON REPORTE
+FOR EACH ROW 
+BEGIN 
+    SELECT SEQ_ID_CLIENTE.NEXTVAL INTO :NEW.ID_REGISTRO FROM DUAL;
+END;
+/
+ALTER TRIGGER "U1"."TRG_CLIENTE" ENABLE;
+--------------------------------------------------------
+--  DDL for Trigger TRG_CLIENTE
+--------------------------------------------------------
+
+  CREATE OR REPLACE TRIGGER "U1"."TRG_CLIENTE" 
+BEFORE INSERT ON REPORTE
+FOR EACH ROW 
+BEGIN 
+    SELECT SEQ_ID_CLIENTE.NEXTVAL INTO :NEW.ID_REGISTRO FROM DUAL;
+END;
+/
+ALTER TRIGGER "U1"."TRG_CLIENTE" ENABLE;
+--------------------------------------------------------
+--  DDL for Package PKG_MANTENIMIENTO
+--------------------------------------------------------
+
+  CREATE OR REPLACE PACKAGE "U1"."PKG_MANTENIMIENTO" AS 
+
+
+PROCEDURE USP_SEL_REGISTROS(
+N_ESTADO IN NUMBER,
+N_CODIGO OUT NUMBER,
+S_MENSAJE OUT VARCHAR2,
+RESULSET OUT SYS_REFCURSOR
+);
+
+PROCEDURE USP_INS_REGISTROS(
+S_NOMBRE IN VARCHAR2,
+S_APELLIDO_P IN VARCHAR2,
+S_APELLIDO_M IN VARCHAR2,
+D_FECHA_N IN DATE,
+S_SEXO IN VARCHAR2,
+S_DIRECCION IN VARCHAR2,
+S_CORREO IN VARCHAR2,
+N_CODIGO OUT NUMBER,
+S_MENSAJE OUT VARCHAR2
+);
+PROCEDURE USP_DEL_REGISTROS(
+P_ID_REGISTRO IN NUMBER,
+N_CODIGO OUT NUMBER,
+S_MENSAJE OUT VARCHAR2
+);
+
+
+END PKG_MANTENIMIENTO;
+
+/
+--------------------------------------------------------
+--  DDL for Package Body PKG_MANTENIMIENTO
+--------------------------------------------------------
+
+  CREATE OR REPLACE PACKAGE BODY "U1"."PKG_MANTENIMIENTO" AS
+
+  PROCEDURE USP_SEL_REGISTROS(
+N_ESTADO IN NUMBER,
+N_CODIGO OUT NUMBER,
+S_MENSAJE OUT VARCHAR2,
+RESULSET OUT SYS_REFCURSOR
+) AS
+  BEGIN
+    OPEN RESULSET FOR
+            SELECT ID_REGISTRO,S_NOMBRE,S_APELLIDO_P,S_APELLIDO_M,to_char(D_FECHA_N, 'DD/MM/YYYY') AS D_FECHA_N,S_SEXO,S_DIRECCION,S_CORREO FROM REPORTE;
+ N_CODIGO:=1;
+ S_MENSAJE:='Consulta realizada correctamente';
+ 
+  EXCEPTION
+            WHEN OTHERS THEN
+            OPEN RESULSET FOR 
+            SELECT '' as Sin_Resultados FROM dual;
+            N_CODIGO:= 2;-- registro fallido
+            S_MENSAJE := 'Error al listar informacion: '||SQLCODE||' -ERROR- '||SQLERRM; 
+  END USP_SEL_REGISTROS;
+
+  PROCEDURE USP_INS_REGISTROS(
+S_NOMBRE IN VARCHAR2,
+S_APELLIDO_P IN VARCHAR2,
+S_APELLIDO_M IN VARCHAR2,
+D_FECHA_N IN DATE,
+S_SEXO IN VARCHAR2,
+S_DIRECCION IN VARCHAR2,
+S_CORREO IN VARCHAR2,
+N_CODIGO OUT NUMBER,
+S_MENSAJE OUT VARCHAR2
+) AS
+  BEGIN
+ N_CODIGO:=1;
+ S_MENSAJE:='Cliente registrado correctamente';
+  INSERT INTO REPORTE (ID_REGISTRO,S_NOMBRE,S_APELLIDO_P,S_APELLIDO_M,D_FECHA_N,S_SEXO,S_DIRECCION,S_CORREO)
+                     VALUES(NULL,S_NOMBRE,S_APELLIDO_P,S_APELLIDO_M,D_FECHA_N,S_SEXO,S_DIRECCION,S_CORREO);
+  EXCEPTION
+            WHEN OTHERS THEN
+            N_CODIGO:= 2;-- registro fallido
+            S_MENSAJE := 'Error al registrar al cliente: '||SQLCODE||' -ERROR- '||SQLERRM; 
+  END USP_INS_REGISTROS;
+
+  PROCEDURE USP_DEL_REGISTROS(
+P_ID_REGISTRO IN NUMBER,
+N_CODIGO OUT NUMBER,
+S_MENSAJE OUT VARCHAR2
+) AS
+  BEGIN
+  N_CODIGO:=1;
+ S_MENSAJE:='Cliente eliminado exitosamente';
+ DELETE FROM REPORTE WHERE ID_REGISTRO = P_ID_REGISTRO;
+     EXCEPTION
+            WHEN OTHERS THEN
+            N_CODIGO:= 2;-- registro fallido
+            S_MENSAJE := 'Error al eliminar cliente: '||SQLCODE||' -ERROR- '||SQLERRM; 
+  END USP_DEL_REGISTROS;
+
+END PKG_MANTENIMIENTO;
+
+/
+--------------------------------------------------------
+--  Constraints for Table REPORTE
+--------------------------------------------------------
+
+  ALTER TABLE "U1"."REPORTE" MODIFY ("S_CORREO" NOT NULL ENABLE);
+  ALTER TABLE "U1"."REPORTE" MODIFY ("S_DIRECCION" NOT NULL ENABLE);
+  ALTER TABLE "U1"."REPORTE" MODIFY ("S_SEXO" NOT NULL ENABLE);
+  ALTER TABLE "U1"."REPORTE" MODIFY ("D_FECHA_N" NOT NULL ENABLE);
+  ALTER TABLE "U1"."REPORTE" MODIFY ("S_APELLIDO_M" NOT NULL ENABLE);
+  ALTER TABLE "U1"."REPORTE" MODIFY ("S_APELLIDO_P" NOT NULL ENABLE);
+  ALTER TABLE "U1"."REPORTE" MODIFY ("S_NOMBRE" NOT NULL ENABLE);
+  ALTER TABLE "U1"."REPORTE" MODIFY ("ID_REGISTRO" NOT NULL ENABLE);
